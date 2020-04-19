@@ -32,7 +32,7 @@ public class ApiController {
     public ResponseEntity<EmailOutcome> sendEmailRequest(@RequestBody Email email) {
         logger.info("Starting method");
         EmailOutcome emailOutcome = this.emailService.sendEmailRequest(email);
-        if(emailOutcome.getOutcome == Outcome.ACCEPTED) {
+        if(emailOutcome.getOutcome() == Outcome.ACCEPTED) {
             logger.info("Method executed successfully!");
             return ResponseEntity.ok(emailOutcome);
         }
