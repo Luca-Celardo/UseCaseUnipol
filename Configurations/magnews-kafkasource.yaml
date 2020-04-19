@@ -1,0 +1,13 @@
+# --- kafka source ---
+apiVersion: sources.eventing.knative.dev/v1alpha1
+kind: KafkaSource
+metadata:
+  name: magnews-kafka-source
+spec:
+  consumerGroup: magnews-dequeuermail-consumer-group-id
+  bootstrapServers: my-cluster-kafka-bootstrap.kafka:9092
+  topics: magnews-source-topic
+  sink:
+    apiVersion: serving.knative.dev/v1alpha1
+    kind: Service
+    name: magnews-dequeuermail-service

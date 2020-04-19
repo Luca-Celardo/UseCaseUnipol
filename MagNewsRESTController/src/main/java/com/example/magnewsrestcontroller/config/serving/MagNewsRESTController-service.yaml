@@ -1,0 +1,10 @@
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: magnews-restcontroller-service
+  namespace: default
+spec:
+  template:
+    spec:
+      container:
+        image: docker.io/lucacelardo/magnewsrestcontroller:1.0.0

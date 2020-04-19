@@ -1,0 +1,10 @@
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: magnews-dequeuermail-service
+  namespace: default
+spec:
+  template:
+    spec:
+      container:
+        image: docker.io/lucacelardo/magnewsdequeuermail:1.0.0
