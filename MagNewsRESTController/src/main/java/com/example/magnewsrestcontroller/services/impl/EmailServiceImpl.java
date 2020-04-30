@@ -41,16 +41,15 @@ public class EmailServiceImpl implements EmailService {
         EmailOutcome emailOutcome = new EmailOutcome();
         emailOutcome.setOutcome(Outcome.NONE);
         this.persister.saveEmailOutcome(emailOutcome);
-        int emailOutcomeId = emailOutcome.getId();
-        if(emailOutcomeId >= 0) {
-            logger.info("The email outcome with ID={} of the email {} has been saved on the DB", emailOutcomeId, email);
+        if(emailOutcome.getId() >= 0) {
+            logger.info("The email outcome with ID={} of the email {} has been saved on the DB", emailOutcome.getId(), email);
             JSONObject emailRequest = new JSONObject();
-            emailRequest.put("id", emailOutcomeId);
+            emailRequest.put("id", emailOutcome.getId());
             emailRequest.put("sender", email.getSender());
             emailRequest.put("receiver", email.getReceiver());
             emailRequest.put("object", email.getObject());
             emailRequest.put("body", email.getBody());
-            //emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
+            emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
             emailOutcome.setOutcome(Outcome.ACCEPTED);
             this.persister.updateEmailOutcome(emailOutcome);
         }
