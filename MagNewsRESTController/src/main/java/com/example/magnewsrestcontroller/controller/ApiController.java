@@ -56,4 +56,9 @@ public class ApiController {
         logger.info("Method executed successfully!");
         return ResponseEntity.ok(emailOutcome);
     }
+
+    @GetMapping("/healthz")
+    public String health() {
+        return "OK";
+    }
 }

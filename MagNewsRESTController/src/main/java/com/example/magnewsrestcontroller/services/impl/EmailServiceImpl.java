@@ -39,7 +39,7 @@ public class EmailServiceImpl implements EmailService {
     public EmailOutcome sendEmailRequest(Email email) {
         logger.info("Trying to put the request for the email {} in the email queue", email);
         EmailOutcome emailOutcome = new EmailOutcome();
-        emailOutcome.setOutcome(Outcome.NULL);
+        emailOutcome.setOutcome(Outcome.NONE);
         int emailOutcomeId = this.persister.saveEmailOutcome(emailOutcome);
         if(emailOutcomeId > 0) {
             logger.info("The email outcome with ID={} of the email {} has been saved on the DB", emailOutcomeId, email);

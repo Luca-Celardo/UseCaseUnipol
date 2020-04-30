@@ -19,5 +19,8 @@ WORKDIR /app
 
 # Copy the jar to the production image from the builder stage.
 COPY target/MagNewsRESTController-*.jar /app/MagNewsRESTController-1.0.0.jar
+
+EXPOSE 8080
+
 # Run the web service on container startup.
 CMD ["java","-jar","MagNewsRESTController-1.0.0.jar"]

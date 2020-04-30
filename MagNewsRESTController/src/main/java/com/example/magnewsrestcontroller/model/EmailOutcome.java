@@ -17,6 +17,6 @@ public class EmailOutcome {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private int id;
-    @Column(name = "outcome", nullable = false)
+    @Column(name = "outcome")
     private Outcome outcome;
 }

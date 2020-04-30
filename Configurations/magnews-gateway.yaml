@@ -1,0 +1,37 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: magnews-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: magnews
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - magnews-gateway
+  http:
+  - match:
+    - uri:
+        exact: /
+    - uri:
+        exact: /mail/request
+    - uri:
+        prefix: /emailoutcomes
+    route:
+    - destination:
+        host: magnews-restcontroller-service
+        port:
+          number: 8080

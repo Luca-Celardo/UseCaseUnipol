@@ -8,11 +8,11 @@ import java.util.List;
 @Mapper
 public interface EmailOutcomePersister {
 
-    @Insert("insert into emailoutcomes (id, outcome) values(#{id}, #{outcome})")
+    @Insert("insert into emailoutcomes (id, outcome) values(#{id}, #{outcome, typeHandler=org.apache.ibatis.type.EnumOrdinalTypeHandler})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int saveEmailOutcome(EmailOutcome emailOutcome);
 
-    @Update("update emailoutcomes set outcome=#{outcome} where id=#{id}")
+    @Update("update emailoutcomes set outcome=#{outcome, typeHandler=org.apache.ibatis.type.EnumOrdinalTypeHandler} where id=#{id}")
     void updateEmailOutcome(EmailOutcome emailOutcome);
 
     @Select("select * from emailoutcomes")

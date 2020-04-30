@@ -3,8 +3,10 @@ kind: Service
 metadata:
   name: magnews-restcontroller-service
   namespace: default
+  labels:
+    app: magnews-restcontroller-service
 spec:
   template:
     spec:
-      container:
-        image: docker.io/lucacelardo/magnewsrestcontroller:1.0.0
+      containers:
+      - image: docker.io/lucacelardo/magnewsrestcontroller:1.0.0
