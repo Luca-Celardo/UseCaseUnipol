@@ -3,6 +3,7 @@ package com.example.magnewsrestcontroller.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -10,13 +11,14 @@ import javax.persistence.*;
 @ToString
 @Setter
 @Getter
-@Entity
-@Table(name = "emailoutcomes")
-public class EmailOutcome {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
-    private int id;
-    @Column(name = "outcome")
+//@Entity
+//@Table(name = "emailoutcomes")
+public class EmailOutcome implements Serializable {
+
+    private Integer id;
     private Outcome outcome;
+
+    public EmailOutcome(Outcome outcome) {
+        this.outcome = outcome;
+    }
 }

@@ -40,8 +40,9 @@ public class EmailServiceImpl implements EmailService {
         logger.info("Trying to put the request for the email {} in the email queue", email);
         EmailOutcome emailOutcome = new EmailOutcome();
         emailOutcome.setOutcome(Outcome.NONE);
-        int emailOutcomeId = this.persister.saveEmailOutcome(emailOutcome);
-        if(emailOutcomeId > 0) {
+        this.persister.saveEmailOutcome(emailOutcome);
+        int emailOutcomeId = emailOutcome.getId();
+        if(emailOutcomeId >= 0) {
             logger.info("The email outcome with ID={} of the email {} has been saved on the DB", emailOutcomeId, email);
             JSONObject emailRequest = new JSONObject();
             emailRequest.put("id", emailOutcomeId);
@@ -49,7 +50,8 @@ public class EmailServiceImpl implements EmailService {
             emailRequest.put("receiver", email.getReceiver());
             emailRequest.put("object", email.getObject());
             emailRequest.put("body", email.getBody());
-            emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
+            //emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
+            emailOutcome.setOutcome(Outcome.ACCEPTED);
             this.persister.updateEmailOutcome(emailOutcome);
         }
         else {
