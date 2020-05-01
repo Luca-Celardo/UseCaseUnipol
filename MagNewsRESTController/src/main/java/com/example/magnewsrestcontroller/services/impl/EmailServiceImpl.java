@@ -50,7 +50,6 @@ public class EmailServiceImpl implements EmailService {
             emailRequest.put("object", email.getObject());
             emailRequest.put("body", email.getBody());
             emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
-            emailOutcome.setOutcome(Outcome.ACCEPTED);
             this.persister.updateEmailOutcome(emailOutcome);
         }
         else {
