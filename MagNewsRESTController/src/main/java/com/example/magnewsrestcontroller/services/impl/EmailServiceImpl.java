@@ -42,7 +42,7 @@ public class EmailServiceImpl implements EmailService {
         emailOutcome.setOutcome(Outcome.NONE);
         this.persister.saveEmailOutcome(emailOutcome);
         if(emailOutcome.getId() >= 0) {
-            logger.info("The email outcome with ID={} of the email {} has been saved on the DB", emailOutcome.getId(), email);
+            logger.info("The email outcome with ID={} of the email {} has been saved into DB", emailOutcome.getId(), email);
             JSONObject emailRequest = new JSONObject();
             emailRequest.put("id", emailOutcome.getId());
             emailRequest.put("sender", email.getSender());
@@ -50,18 +50,19 @@ public class EmailServiceImpl implements EmailService {
             emailRequest.put("object", email.getObject());
             emailRequest.put("body", email.getBody());
             emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
+            logger.info("The email outcome [{}] will be updated into DB", emailOutcome);
             this.persister.updateEmailOutcome(emailOutcome);
         }
         else {
-            logger.error("The email outcome of the email {} has not been saved on the DB", email);
+            logger.error("The email outcome of the email {} has not been saved into DB", email);
         }
         return emailOutcome;
     }
 
     private EmailOutcome putEmailInTheQueue(JSONObject emailRequest, String topic) {
+        logger.info("Putting in the email queue the email request=[{}]", emailRequest);
         EmailOutcome emailOutcome = new EmailOutcome();
         emailOutcome.setId(emailRequest.getInt("id"));
-        logger.info("Putting in the email queue the email request=[{}]", emailRequest);
         ListenableFuture<SendResult<String, JSONObject>> future = kafkaTemplate.send(topic, emailRequest);
         future.addCallback(new ListenableFutureCallback<SendResult<String, JSONObject>>() {
             @Override

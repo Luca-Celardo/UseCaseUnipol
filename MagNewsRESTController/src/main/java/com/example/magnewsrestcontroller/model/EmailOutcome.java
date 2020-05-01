@@ -11,8 +11,6 @@ import java.io.Serializable;
 @ToString
 @Setter
 @Getter
-//@Entity
-//@Table(name = "emailoutcomes")
 public class EmailOutcome implements Serializable {
 
     private Integer id;

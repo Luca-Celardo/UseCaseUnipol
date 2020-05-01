@@ -28,7 +28,7 @@ public class ApiController {
         return "Welcome to Email service!";
     }
 
-    @PostMapping("/mail/request")
+    @PostMapping("/email/request")
     public ResponseEntity<EmailOutcome> sendEmailRequest(@RequestBody Email email) {
         logger.info("Starting method");
         EmailOutcome emailOutcome = this.emailService.sendEmailRequest(email);
