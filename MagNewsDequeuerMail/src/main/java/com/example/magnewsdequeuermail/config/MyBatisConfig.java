@@ -4,6 +4,6 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan("com.example.magnewsdequerermail.persistence")
+@MapperScan("com.example.magnewsdequeurermail.persistence")
 public class MyBatisConfig {
 }
