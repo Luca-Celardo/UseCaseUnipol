@@ -1,22 +1,44 @@
 package com.example.magnewsdequeuermail.model;
 
-import lombok.*;
+import java.io.Serializable;
 
-import javax.persistence.*;
+public class EmailOutcome implements Serializable {
 
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode
-@ToString
-@Setter
-@Getter
-@Entity
-@Table(name = "emailoutcomes")
-public class EmailOutcome {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
-    private int id;
-    @Column(name = "outcome", nullable = false)
+    private Integer id;
     private Outcome outcome;
+
+    public EmailOutcome() {}
+
+    public EmailOutcome(Outcome outcome) {
+        this.outcome = outcome;
+    }
+
+    public EmailOutcome(Integer id, Outcome outcome) {
+        this.id = id;
+        this.outcome = outcome;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Outcome getOutcome() {
+        return outcome;
+    }
+
+    public void setOutcome(Outcome outcome) {
+        this.outcome = outcome;
+    }
+
+    @Override
+    public String toString() {
+        return "EmailOutcome{" +
+                "id=" + id +
+                ", outcome=" + outcome +
+                '}';
+    }
 }

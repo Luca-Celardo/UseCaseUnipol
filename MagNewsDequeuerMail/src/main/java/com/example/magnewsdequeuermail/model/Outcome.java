@@ -4,5 +4,5 @@ public enum Outcome {
     ACCEPTED,
     SUCCESS,
     FAILED,
-    NULL
+    NONE
 }
