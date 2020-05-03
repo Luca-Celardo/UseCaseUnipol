@@ -22,10 +22,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.mail.MessagingException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 @Service
@@ -62,14 +58,14 @@ public class EmailDequeuerImpl implements EmailDequeuer {
     @KafkaListener(topics = "magnews-topic", groupId = "magnews-dequeuermail-consumer-group-id")
     public Email readEmailRequestFromEmailQueue(JSONObject emailRequest) {
         logger.info("Trying to read a request on the email queue");
-        logger.info("Consumed event -> Data=[{}]", emailRequest);
+        logger.info("Consumed event -> Data=[{}]", emailRequest.toString());
         Email email = new Email();
         EmailOutcome emailOutcome = new EmailOutcome();
+        int emailOutcomeId = emailRequest.getInt("id");
         email.setSender(emailRequest.getString("sender"));
         email.setReceiver(emailRequest.getString("receiver"));
         email.setObject(emailRequest.getString("object"));
         email.setBody(emailRequest.getString("body"));
-        int emailOutcomeId = emailRequest.getInt("id");
         emailOutcome.setId(emailOutcomeId);
         logger.info("Email request with ID={} for the email {} has been read from the queue", emailOutcomeId, email);
         try {
