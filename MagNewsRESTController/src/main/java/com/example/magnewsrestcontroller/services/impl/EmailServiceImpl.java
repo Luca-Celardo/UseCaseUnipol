@@ -20,12 +20,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class EmailServiceImpl implements EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
     private EmailOutcomePersister persister;
+    private static final String sourceTopic = "magnews-source-topic";
     private static final String topic = "magnews-topic";
     private static KafkaTemplate kafkaTemplate;
 
@@ -42,16 +44,18 @@ public class EmailServiceImpl implements EmailService {
         emailOutcome.setOutcome(Outcome.NONE);
         this.persister.saveEmailOutcome(emailOutcome);
         if(emailOutcome.getId() >= 0) {
-            logger.info("The email outcome with ID={} of the email {} has been saved into DB", emailOutcome.getId(), email);
+            logger.info("The email outcome {} of the email {} has been saved into DB", emailOutcome, email);
             JSONObject emailRequest = new JSONObject();
             emailRequest.put("id", emailOutcome.getId());
             emailRequest.put("sender", email.getSender());
             emailRequest.put("receiver", email.getReceiver());
             emailRequest.put("object", email.getObject());
             emailRequest.put("body", email.getBody());
+            emailOutcome = this.putEmailInTheQueue(emailRequest, sourceTopic);
             emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
             logger.info("The email outcome [{}] will be updated into DB", emailOutcome);
             this.persister.updateEmailOutcome(emailOutcome);
+            logger.info("The email outcome [{}] has been updated into DB", emailOutcome);
         }
         else {
             logger.error("The email outcome of the email {} has not been saved into DB", email);
@@ -64,7 +68,22 @@ public class EmailServiceImpl implements EmailService {
         EmailOutcome emailOutcome = new EmailOutcome();
         emailOutcome.setId(emailRequest.getInt("id"));
         ListenableFuture<SendResult<String, JSONObject>> future = kafkaTemplate.send(topic, emailRequest);
-        future.addCallback(new ListenableFutureCallback<SendResult<String, JSONObject>>() {
+        try {
+            int timeout = 10;
+            if (!topic.equals(sourceTopic))
+                timeout = 240;
+            SendResult<String, JSONObject> sendResult = future.get(timeout, TimeUnit.SECONDS);
+            logger.info("Send result = {}", sendResult.toString());
+            logger.info("The email request=[{}] has been put in the email queue=[{}]" , sendResult.getProducerRecord().value(), sendResult.getProducerRecord().topic());
+            emailOutcome.setOutcome(Outcome.ACCEPTED);
+            logger.info("The email request with ID={} has been ACCEPTED", emailOutcome.getId());
+        }
+        catch(Exception e) {
+            logger.error("Unable to put the email request=[{}] in the email queue because of: {}", emailRequest, e.getMessage());
+            emailOutcome.setOutcome(Outcome.FAILED);
+            logger.info("The email request with ID={} FAILED", emailOutcome.getId());
+        }
+        /*future.addCallback(new ListenableFutureCallback<SendResult<String, JSONObject>>() {
             @Override
             public void onSuccess(SendResult<String, JSONObject> result) {
                 logger.info("The email request=[{}] has been put in the email queue=[{}]" , result.getProducerRecord().value(), result.getProducerRecord().topic());
@@ -77,7 +96,7 @@ public class EmailServiceImpl implements EmailService {
                 emailOutcome.setOutcome(Outcome.FAILED);
                 logger.info("The email request with ID={} FAILED", emailOutcome.getId());
             }
-        });
+        });*/
         return emailOutcome;
     }
 
