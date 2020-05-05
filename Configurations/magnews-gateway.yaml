@@ -27,9 +27,9 @@ spec:
     - uri:
         exact: /
     - uri:
-        exact: /mail/request
+        exact: /email/request
     - uri:
-        prefix: /emailoutcomes
+        exact: /emailoutcomes/
     route:
     - destination:
         host: magnews-restcontroller-service
