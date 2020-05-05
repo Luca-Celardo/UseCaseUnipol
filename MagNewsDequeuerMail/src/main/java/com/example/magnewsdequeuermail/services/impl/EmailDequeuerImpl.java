@@ -45,7 +45,7 @@ public class EmailDequeuerImpl implements EmailDequeuer {
         logger.info("Received event headers: {}", headers);
         logger.info("Received event body: {}", body);
         if (MediaType.APPLICATION_JSON_VALUE.equalsIgnoreCase(headers.get("content-type").toString())) {
-            logger.info("Consumed event -> Data=[{}]", body);
+            logger.info("Consumed event -> Data: {}", body);
             return ResponseEntity.ok().build();
         }
         else {
@@ -58,7 +58,7 @@ public class EmailDequeuerImpl implements EmailDequeuer {
     @KafkaListener(topics = "magnews-topic", groupId = "magnews-dequeuermail-consumer-group-id")
     public Email readEmailRequestFromEmailQueue(String stringEmailRequest) {
         logger.info("Trying to read a request on the email queue");
-        logger.info("Consumed event -> Data=[{}]", stringEmailRequest);
+        logger.info("Consumed event -> Data={}", stringEmailRequest);
         Email email = new Email();
         EmailOutcome emailOutcome = new EmailOutcome();
         JSONObject emailRequest = new JSONObject(stringEmailRequest.replace("\\", ""));

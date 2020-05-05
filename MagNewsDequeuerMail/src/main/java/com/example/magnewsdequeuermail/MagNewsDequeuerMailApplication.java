@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MagnNwsDequeuerMailApplication {
+public class MagNewsDequeuerMailApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MagnNwsDequeuerMailApplication.class, args);
+        SpringApplication.run(MagNewsDequeuerMailApplication.class, args);
     }
 
 }
