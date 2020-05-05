@@ -51,8 +51,8 @@ public class EmailServiceImpl implements EmailService {
             emailRequest.put("receiver", email.getReceiver());
             emailRequest.put("object", email.getObject());
             emailRequest.put("body", email.getBody());
-            emailOutcome = this.putEmailInTheQueue(emailRequest, sourceTopic);
             emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
+            emailOutcome = this.putEmailInTheQueue(emailRequest, sourceTopic);
             logger.info("The email outcome [{}] will be updated into DB", emailOutcome);
             this.persister.updateEmailOutcome(emailOutcome);
             logger.info("The email outcome [{}] has been updated into DB", emailOutcome);
