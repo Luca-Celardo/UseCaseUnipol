@@ -61,7 +61,7 @@ public class EmailDequeuerImpl implements EmailDequeuer {
         logger.info("Consumed event -> Data=[{}]", stringEmailRequest);
         Email email = new Email();
         EmailOutcome emailOutcome = new EmailOutcome();
-        JSONObject emailRequest = new JSONObject(stringEmailRequest);
+        JSONObject emailRequest = new JSONObject(stringEmailRequest.replace("\\", ""));
         logger.info("Email request {}", emailRequest);
         int emailOutcomeId = emailRequest.getInt("id");
         email.setSender(emailRequest.getString("sender"));
