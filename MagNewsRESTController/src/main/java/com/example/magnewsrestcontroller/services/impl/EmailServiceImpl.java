@@ -15,10 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -67,12 +63,12 @@ public class EmailServiceImpl implements EmailService {
         logger.info("Putting in the email queue the email request=[{}]", emailRequest);
         EmailOutcome emailOutcome = new EmailOutcome();
         emailOutcome.setId(emailRequest.getInt("id"));
-        ListenableFuture<SendResult<String, JSONObject>> future = kafkaTemplate.send(topic, emailRequest);
+        ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, emailRequest.toString());
         try {
             int timeout = 10;
             if (!topic.equals(sourceTopic))
                 timeout = 240;
-            SendResult<String, JSONObject> sendResult = future.get(timeout, TimeUnit.SECONDS);
+            SendResult<String, String> sendResult = future.get(timeout, TimeUnit.SECONDS);
             logger.info("Send result = {}", sendResult.toString());
             logger.info("The email request=[{}] has been put in the email queue=[{}]" , sendResult.getProducerRecord().value(), sendResult.getProducerRecord().topic());
             emailOutcome.setOutcome(Outcome.ACCEPTED);
