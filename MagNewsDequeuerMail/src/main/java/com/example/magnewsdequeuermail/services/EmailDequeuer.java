@@ -8,6 +8,6 @@ import javax.mail.MessagingException;
 
 public interface EmailDequeuer {
 
-    Email readEmailRequestFromEmailQueue(JSONObject emailRequest);
+    Email readEmailRequestFromEmailQueue(String emailRequest);
     EmailOutcome sendEmail(Email email) throws MessagingException;
 }
