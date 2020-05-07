@@ -13,7 +13,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +34,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public EmailOutcome sendEmailRequest(Email email) {
-        logger.info("Trying to put the request for the email {} in the email queue", email);
+        logger.debug("Trying to put the request for the email {} in the email queue", email);
         EmailOutcome emailOutcome = new EmailOutcome();
         emailOutcome.setOutcome(Outcome.NONE);
         this.persister.saveEmailOutcome(emailOutcome);
@@ -49,50 +48,32 @@ public class EmailServiceImpl implements EmailService {
             emailRequest.put("body", email.getBody());
             emailOutcome = this.putEmailInTheQueue(emailRequest, topic);
             emailOutcome = this.putEmailInTheQueue(emailRequest, sourceTopic);
-            logger.info("The email outcome [{}] will be updated into DB", emailOutcome);
+            logger.debug("The email outcome {} of the email {} will be updated into DB", emailOutcome, email);
             this.persister.updateEmailOutcome(emailOutcome);
-            logger.info("The email outcome [{}] has been updated into DB", emailOutcome);
+            logger.info("The email outcome {} of the email {} has been updated into DB", emailOutcome, email);
         }
         else {
-            logger.error("The email outcome of the email {} has not been saved into DB", email);
+            logger.error("The email outcome {} of the email {} has not been saved into DB", emailOutcome, email);
         }
         return emailOutcome;
     }
 
     private EmailOutcome putEmailInTheQueue(JSONObject emailRequest, String topic) {
-        logger.info("Putting in the email queue the email request=[{}]", emailRequest);
+        logger.debug("Putting in the email queue the email request {}", emailRequest);
         EmailOutcome emailOutcome = new EmailOutcome();
         emailOutcome.setId(emailRequest.getInt("id"));
         ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, emailRequest.toString());
         try {
-            int timeout = 10;
-            if (!topic.equals(sourceTopic))
-                timeout = 240;
-            SendResult<String, String> sendResult = future.get(timeout, TimeUnit.SECONDS);
-            logger.info("Send result = {}", sendResult.toString());
-            logger.info("The email request=[{}] has been put in the email queue=[{}]" , sendResult.getProducerRecord().value(), sendResult.getProducerRecord().topic());
+            SendResult<String, String> sendResult = future.get(10, TimeUnit.SECONDS);
+            logger.info("The email request {} has been put in the email queue: {}" , sendResult.getProducerRecord().value(), sendResult.getProducerRecord().topic());
             emailOutcome.setOutcome(Outcome.ACCEPTED);
-            logger.info("The email request with ID={} has been ACCEPTED", emailOutcome.getId());
+            logger.info("The email request {} has been ACCEPTED", emailRequest);
         }
         catch(Exception e) {
-            logger.error("Unable to put the email request=[{}] in the email queue because of: {}", emailRequest, e.getMessage());
+            logger.error("Unable to put the email request {} in the email queue because of: {}", emailRequest, e.getMessage());
             emailOutcome.setOutcome(Outcome.FAILED);
-            logger.info("The email request with ID={} FAILED", emailOutcome.getId());
+            logger.error("The email request {} FAILED", emailRequest);
         }
-        /*future.addCallback(new ListenableFutureCallback<SendResult<String, JSONObject>>() {
-            @Override
-            public void onSuccess(SendResult<String, JSONObject> result) {
-                logger.info("The email request=[{}] has been put in the email queue=[{}]" , result.getProducerRecord().value(), result.getProducerRecord().topic());
-                emailOutcome.setOutcome(Outcome.ACCEPTED);
-                logger.info("The email request with ID={} has been ACCEPTED", emailOutcome.getId());
-            }
-            @Override
-            public void onFailure(Throwable ex) {
-                logger.error("Unable to put the email request=[{}] in the email queue because of: {}", emailRequest, ex.getMessage());
-                emailOutcome.setOutcome(Outcome.FAILED);
-                logger.info("The email request with ID={} FAILED", emailOutcome.getId());
-            }
-        });*/
         return emailOutcome;
     }
 

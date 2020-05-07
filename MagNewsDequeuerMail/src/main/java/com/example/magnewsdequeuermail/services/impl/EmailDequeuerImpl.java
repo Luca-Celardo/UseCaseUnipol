@@ -42,8 +42,8 @@ public class EmailDequeuerImpl implements EmailDequeuer {
 
     @PostMapping(value="/", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> consumeCloudEvent(@RequestHeader Map<String, Object> headers, @RequestBody String body) {
-        logger.info("Received event headers: {}", headers);
-        logger.info("Received event body: {}", body);
+        logger.debug("Received event headers: {}", headers);
+        logger.debug("Received event body: {}", body);
         if (MediaType.APPLICATION_JSON_VALUE.equalsIgnoreCase(headers.get("content-type").toString())) {
             logger.info("Consumed event -> Data: {}", body);
             return ResponseEntity.ok().build();
@@ -57,34 +57,39 @@ public class EmailDequeuerImpl implements EmailDequeuer {
     @Override
     @KafkaListener(topics = "magnews-topic", groupId = "magnews-dequeuermail-consumer-group-id")
     public Email readEmailRequestFromEmailQueue(String stringEmailRequest) {
-        logger.info("Trying to read a request on the email queue");
-        logger.info("Consumed event -> Data={}", stringEmailRequest);
+        logger.debug("Trying to read the email request {} on the email queue", stringEmailRequest);
+        logger.info("Consumed event -> Data: {}", stringEmailRequest);
         Email email = new Email();
         EmailOutcome emailOutcome = new EmailOutcome();
-        JSONObject emailRequest = new JSONObject(stringEmailRequest.replace("\\", ""));
-        logger.info("Email request {}", emailRequest);
-        int emailOutcomeId = emailRequest.getInt("id");
+        JSONObject emailRequest = new JSONObject(stringEmailRequest);
+        emailOutcome.setId(emailRequest.getInt("id"));
         email.setSender(emailRequest.getString("sender"));
         email.setReceiver(emailRequest.getString("receiver"));
         email.setObject(emailRequest.getString("object"));
         email.setBody(emailRequest.getString("body"));
-        emailOutcome.setId(emailOutcomeId);
-        logger.info("Email request with ID={} for the email {} has been read from the queue", emailOutcomeId, email);
+        logger.info("The email request {} has been read from the queue", emailRequest);
         try {
+            logger.debug("Trying to send email {}", email);
             this.sendEmail(email);
+            logger.info("Email {} sent with SUCCESS!", email);
             emailOutcome.setOutcome(Outcome.SUCCESS);
+            logger.debug("The email outcome {} of the email {} will be updated into DB", emailOutcome, email);
             this.persister.updateEmailOutcome(emailOutcome);
-            logger.info("Email {} sent successfully!", email);
+            logger.info("The email outcome {} of the email {} has been updated into DB", emailOutcome, email);
         } catch (MessagingException e) {
             e.printStackTrace();
+            logger.error("The sent of the email {} FAILED because of the following exception: {}", email, e);
             emailOutcome.setOutcome(Outcome.FAILED);
+            logger.debug("The email outcome {} of the email {} will be updated into DB", emailOutcome, email);
             this.persister.updateEmailOutcome(emailOutcome);
-            logger.error("Email {} was NOT sent successfully because of the following exception: {}", email, e);
+            logger.info("The email outcome {} of the email {} has been updated into DB", emailOutcome, email);
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error("The sent of the email {} FAILED because of the following exception: {}", email, e);
             emailOutcome.setOutcome(Outcome.FAILED);
+            logger.debug("The email outcome {} of the email {} will be updated into DB", emailOutcome, email);
             this.persister.updateEmailOutcome(emailOutcome);
-            logger.error("Email {} was NOT sent successfully because of the following exception: {}", email, e);
+            logger.info("The email outcome {} of the email {} has been updated into DB", emailOutcome, email);
         }
         return email;
     }

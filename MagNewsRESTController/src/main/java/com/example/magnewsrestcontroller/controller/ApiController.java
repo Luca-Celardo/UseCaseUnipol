@@ -17,6 +17,7 @@ import java.util.List;
 public class ApiController {
     private EmailService emailService;
     private static final Logger logger = LoggerFactory.getLogger(ApiController.class);
+    private static final String NAMESPACE = "/magnews/v1";
 
     @Autowired
     public ApiController(EmailService emailService) {
@@ -28,7 +29,7 @@ public class ApiController {
         return "Welcome to Email service!";
     }
 
-    @PostMapping("/email/request")
+    @PostMapping(NAMESPACE + "/email/request")
     public ResponseEntity<EmailOutcome> sendEmailRequest(@RequestBody Email email) {
         logger.info("Starting method");
         EmailOutcome emailOutcome = this.emailService.sendEmailRequest(email);
@@ -42,23 +43,18 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/emailoutcomes/")
+    @GetMapping(NAMESPACE + "/emailoutcomes/")
     public ResponseEntity<List<EmailOutcome>> getAllEmailOutcomes() {
         logger.info("Starting method");
         List<EmailOutcome> emailOutcomeList = this.emailService.getAllEmailOutcomes();
         return ResponseEntity.ok(emailOutcomeList);
     }
 
-    @GetMapping("/emailoutcomes/{id}")
+    @GetMapping(NAMESPACE + "/emailoutcomes/{id}")
     public ResponseEntity<EmailOutcome> getEmailOutcomeById(@PathVariable int id) {
         logger.info("Starting method");
         EmailOutcome emailOutcome = this.emailService.getEmailOutcomeById(id);
         logger.info("Method executed successfully!");
         return ResponseEntity.ok(emailOutcome);
-    }
-
-    @GetMapping("/healthz")
-    public String health() {
-        return "OK";
     }
 }
