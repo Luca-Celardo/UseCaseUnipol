@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,8 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 @Service
@@ -32,16 +29,6 @@ public class EmailDequeuerImpl implements EmailDequeuer {
     private EmailOutcomePersister persister;
     private KafkaTemplate kafkaTemplate;
 
-    private static final String RESPONSE_STRING_FORMAT = "%s %s greeter => '%s' : %d\n";
-
-    private final SimpleDateFormat SDF = new SimpleDateFormat("HH:mm:ss");
-
-    private static final String HOSTNAME = parseContainerIdFromHostname(System.getenv().getOrDefault("HOSTNAME", "unknown"));
-
-    static String parseContainerIdFromHostname(String hostname) {
-        return hostname.replaceAll("magnews-dequeuermail-service-", "").trim();
-    }
-
     @Autowired
     public EmailDequeuerImpl(JavaMailSender emailSender, EmailOutcomePersister persister, KafkaTemplate kafkaTemplate) {
         this.persister = persister;
@@ -50,7 +37,7 @@ public class EmailDequeuerImpl implements EmailDequeuer {
     }
 
     @PostMapping(value="/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String consumeCloudEvent(@RequestHeader Map<String, Object> headers, @RequestBody String body) {
+    public void consumeCloudEvent(@RequestHeader Map<String, Object> headers, @RequestBody String body) {
         logger.debug("Received event headers: {}", headers);
         logger.debug("Received event body: {}", body);
         if (MediaType.APPLICATION_JSON_VALUE.equalsIgnoreCase(headers.get("content-type").toString())) {
@@ -59,8 +46,6 @@ public class EmailDequeuerImpl implements EmailDequeuer {
         else {
             logger.error("Invalid event format received");
         }
-        JSONObject response = new JSONObject(body).put("host", HOSTNAME).put("time",SDF.format(new Date()));
-        return response.toString();
     }
 
     @Override
@@ -113,10 +98,5 @@ public class EmailDequeuerImpl implements EmailDequeuer {
         emailSender.send(message);
 
         return null;
-    }
-
-    @GetMapping("/healthz")
-    public String health() {
-        return "OK";
     }
 }
