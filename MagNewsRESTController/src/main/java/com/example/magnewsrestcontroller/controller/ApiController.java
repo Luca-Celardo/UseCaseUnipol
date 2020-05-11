@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 public class ApiController {
     private EmailService emailService;
@@ -35,7 +34,7 @@ public class ApiController {
         EmailOutcome emailOutcome = this.emailService.sendEmailRequest(email);
         if(emailOutcome.getOutcome() == Outcome.ACCEPTED) {
             logger.info("Method executed successfully!");
-            return ResponseEntity.ok(emailOutcome);
+            return ResponseEntity.accepted().build();
         }
         else {
             logger.error("Method encountered errors!");
@@ -47,6 +46,7 @@ public class ApiController {
     public ResponseEntity<List<EmailOutcome>> getAllEmailOutcomes() {
         logger.info("Starting method");
         List<EmailOutcome> emailOutcomeList = this.emailService.getAllEmailOutcomes();
+        logger.info("Method executed successfully!");
         return ResponseEntity.ok(emailOutcomeList);
     }
 
@@ -54,7 +54,13 @@ public class ApiController {
     public ResponseEntity<EmailOutcome> getEmailOutcomeById(@PathVariable int id) {
         logger.info("Starting method");
         EmailOutcome emailOutcome = this.emailService.getEmailOutcomeById(id);
-        logger.info("Method executed successfully!");
-        return ResponseEntity.ok(emailOutcome);
+        if(emailOutcome != null) {
+            logger.info("Method executed successfully!");
+            return ResponseEntity.ok(emailOutcome);
+        }
+        else {
+            logger.error("Method encountered errors: email outcome with ID={} has NOT been found!", id);
+            return ResponseEntity.notFound().build();
+        }
     }
 }
