@@ -72,14 +72,14 @@ public class EmailDequeuerImpl implements EmailDequeuer {
             logger.info("The email outcome {} of the email {} has been updated into DB", emailOutcome, email);
         } catch (MessagingException e) {
             e.printStackTrace();
-            logger.error("The sent of the email {} FAILED because of the following exception: {}", email, e);
+            logger.error("Sending of the email {} FAILED because of the following exception: {}", email, e);
             emailOutcome.setOutcome(Outcome.FAILED);
             logger.debug("The email outcome {} of the email {} will be updated into DB", emailOutcome, email);
             this.persister.updateEmailOutcome(emailOutcome);
             logger.info("The email outcome {} of the email {} has been updated into DB", emailOutcome, email);
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("The sent of the email {} FAILED because of the following exception: {}", email, e);
+            logger.error("Sending of the email {} FAILED because of the following exception: {}", email, e);
             emailOutcome.setOutcome(Outcome.FAILED);
             logger.debug("The email outcome {} of the email {} will be updated into DB", emailOutcome, email);
             this.persister.updateEmailOutcome(emailOutcome);
