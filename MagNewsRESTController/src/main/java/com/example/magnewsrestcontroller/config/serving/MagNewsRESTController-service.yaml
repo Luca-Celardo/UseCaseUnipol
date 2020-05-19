@@ -10,3 +10,4 @@ spec:
     spec:
       containers:
       - image: docker.io/lucacelardo/magnewsrestcontroller:1.0.0
+      #- image: docker.io/smwofficial/sigfrid:latest
